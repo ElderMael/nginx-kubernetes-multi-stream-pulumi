@@ -1,0 +1,3 @@
+name: nginx-kubernetes-multi-stream-pulumi
+runtime: nodejs
+description: A nginx RTMP server with multi-stream capabilities for Twitch, Youtube, Facebook.

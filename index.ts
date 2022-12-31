@@ -17,12 +17,25 @@ const streamRtmpNamespace = new k8s.core.v1.Namespace('multi-stream-rtmp-namespa
     },
 });
 
-const streamRtmpConfig = createNginxConfigMap({
-    namespace: streamRtmpNamespace,
-    youtubeStreamKey: config.get('youtube-stream-key') || 'abcd',
-    facebookStreamKey:  config.get('facebook-stream-key') || 'dcba',
-    twitchStreamKey: config.get('twitch-stream-key') || 'acdb',
+const streamRtmpConfig = pulumi.all([
+    config.requireSecret('youtube-stream-key'),
+    config.requireSecret('facebook-stream-key'),
+    config.requireSecret('twitch-stream-key'),
+]).apply((
+    [
+        youtubeStreamKey,
+        facebookStreamKey,
+        twitchStreamKey,
+    ]
+) => {
+    return createNginxConfigMap({
+        namespace: streamRtmpNamespace,
+        youtubeStreamKey: youtubeStreamKey,
+        facebookStreamKey: facebookStreamKey,
+        twitchStreamKey: twitchStreamKey,
+    });
 });
+
 
 const streamRtmpServer = new k8s.apps.v1.Deployment('multi-stream-rtmp-server', {
     metadata: {
